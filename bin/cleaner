@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.dirname(__FILE__) + "/../lib"
+
+require 'rubygems'
+require 'bundler'
+Bundler.require
+
+require 'couch_cleaner/database.rb'
+
+CouchCleaner::Database.new
