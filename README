@@ -1,3 +1,5 @@
 Couch Cleaner
 
-An attempt to clean CouchDB from scratch without other layers in the way, exploring how to clean up encoding issues along the way. It could end up as just Net::HTTP and iconv.
+Pass Iconv against your CouchDB database. Essentially pure Net::HTTP, Yajl for JSON, and some attempts at detecting when Iconv has worked.
+
+Works around Net::HTTP ignoring charset.
