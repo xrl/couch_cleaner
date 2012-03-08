@@ -6,6 +6,24 @@ require 'rubygems'
 require 'bundler'
 Bundler.require
 
-require 'couch_cleaner/database.rb'
+require 'optparse'
+require 'couch_cleaner/version'
+require 'couch_cleaner/database'
+require 'iconv'
+require 'couch_cleaner/diff'
 
-CouchCleaner::Database.new
+Encoding.default_internal = Encoding::UTF_8
+
+@options = {
+  :database => nil
+}
+OptionParser.new do |opts|
+  opts.version = CouchCleaner::VERSION
+  opts.on("-d","--database=DB","HTTP URI for your couch database") do |database|
+    @options[:database] = database
+  end
+end.parse!
+
+db = CouchCleaner::Database.new(@options[:database])
+# puts db.get_bulk_doc_resp.body.inspect
+# puts db.all_doc_ids[0..10].to_s
