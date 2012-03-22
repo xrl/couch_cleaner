@@ -12,19 +12,26 @@ require 'iconv'
 
 Encoding.default_internal = Encoding::UTF_8
 
-@options = {
-  :database => nil
+options = {
+  :database => nil,
+  :interactive => false
 }
 parser = OptionParser.new do |opts|
   opts.version = CouchCleaner::VERSION
   opts.on("-d","--database=DB","HTTP URI for your couch database") do |database|
-    @options[:database] = database
+    options[:database] = database
+  end
+  opts.on("-i","--interactive","Process database in an interactive mode") do
+    options[:interactive] = true
   end
 end
 parser.parse!
 
-db = CouchCleaner::Database.new(@options[:database])
-doc_resp = db.get_doc_resp("6db4062ec9f2b589e20d2d2b8fd3676e")
-puts CouchCleaner.conv(doc_resp.body)
+raise ArgumentError, "Must provide database URI" if options[:database].nil?
+
+db = CouchCleaner::Database.new(options[:database])
+CouchCleaner.conv_db(db,options)
+# doc_resp = db.get_doc_resp("6db4062ec9f2b589e20d2d2b8fd3676e")
+# puts CouchCleaner.conv(doc_resp.body)
 # puts db.get_bulk_doc_resp.body.inspect
 # puts db.all_doc_ids[0..10].to_s
