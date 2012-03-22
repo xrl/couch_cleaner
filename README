@@ -1,3 +1,14 @@
 Couch Cleaner
 
 An attempt to clean CouchDB from scratch without other layers in the way, exploring how to clean up encoding issues along the way. It could end up as just Net::HTTP and iconv.
+
+Iconv
+
+Iconv has mapping already setup but we need to find the right mixture. This code will take LATIN1
+
+1.9.2p290 :034 > puts str
+{"_id":"6db4062ec9f2b589e20d2d2b8fd3676e","_rev":"26-7d630d14e2bd8b8c8b15a79dd3064c85","description":"The company’s vision is to increase the speed-to-market from “idea” to “drug”."}
+ => nil 
+1.9.2p290 :035 > puts Iconv.conv("LATIN1//TRANSLIT//IGNORE", "UTF8", str)
+{"_id":"6db4062ec9f2b589e20d2d2b8fd3676e","_rev":"26-7d630d14e2bd8b8c8b15a79dd3064c85","description":"The company?s vision is to increase the speed-to-market from "idea" to "drug"."}
+ => nil 

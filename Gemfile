@@ -1,4 +1,4 @@
 source :gemcutter
 
 gem 'yajl-ruby', :require => 'yajl'
-gem 'differ'
+gem 'diff-lcs', :require => 'diff/lcs'

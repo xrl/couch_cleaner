@@ -1,7 +1,7 @@
+# encoding: UTF-8
 require 'net/http'
 require 'yajl'
 require 'enumerator'
-
 
 module CouchCleaner
   class Database
@@ -14,22 +14,19 @@ module CouchCleaner
       resp = get_doc_resp("_all_docs")
       Yajl::Parser.parse(resp.body)["rows"].collect{|x| x["id"]}      
     end
-
     def get_doc_resp(doc_id)
       req = Net::HTTP::Get.new(@uri.path+"/"+doc_id)
       resp = @conn.request req
-      charset = resp.type_params["charset"] || "utf-8"
-      resp.body.force_encoding(charset)
+      resp.body.force_encoding(resp.type_params["charset"] || "utf-8")
       resp
     end
     def get_bulk_doc_resp(doc_ids=[])
       req = Net::HTTP::Post.new(@uri.path+"/_all_docs?include_docs=true")
-      body = {"keys" => doc_ids}
-      req.body = Yajl::Encoder.encode(body)
+      req.body = Yajl::Encoder.encode({"keys" => doc_ids})
       req['Content-Type'] = "application/json"
-      @conn.request req
-
-      # resp = Net::HTTP.post_response(@db_uri+"_all_docs",)
+      resp = @conn.request req
+      resp.body.force_encoding(resp.type_params["charset"] || "utf-8")
+      resp
     end
   end
 end
