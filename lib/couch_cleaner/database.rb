@@ -30,7 +30,8 @@ module CouchCleaner
     end
     def put_doc(doc_id,raw_doc)
       req = Net::HTTP::Put.new(@uri.path+"/#{doc_id}")
-      req["content-type"] = "application/json"
+      # Aha! This let's you put unfiltered documents
+      req["content-type"] = "application/json; charset=utf-8"
       req.body = raw_doc
       resp = @conn.request req
       resp.body.force_encoding(resp.type_params["charset"] || "utf-8")
