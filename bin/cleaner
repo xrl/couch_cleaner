@@ -14,23 +14,36 @@ Encoding.default_internal = Encoding::UTF_8
 
 options = {
   :database => nil,
-  :interactive => false
+  :interactive => false,
+  :doc_id => nil,
+  :verbose => false
 }
 parser = OptionParser.new do |opts|
   opts.version = CouchCleaner::VERSION
-  opts.on("-d","--database=DB","HTTP URI for your couch database") do |database|
+  opts.on("-d DB","--database=DB","HTTP URI for your couch database") do |database|
     options[:database] = database
   end
   opts.on("-i","--interactive","Process database in an interactive mode") do
     options[:interactive] = true
   end
+  opts.on("-t TARGET","--target=TARGET","Only process document specified") do |doc_id|
+    options[:doc_id] = doc_id
+  end
+  opts.on("-v","--verbose","Turn on noisiness") do
+    options[:verbose] = true
+  end
 end
 parser.parse!
 
 raise ArgumentError, "Must provide database URI" if options[:database].nil?
+raise ArgumentError, "Must provide document ID" if options[:mode] == :doc && options[:doc_id].nil?
 
 db = CouchCleaner::Database.new(options[:database])
-CouchCleaner.conv_db(db,options)
+if options[:doc_id]
+  CouchCleaner.conv_doc(db,options[:doc_id],options)
+else
+  CouchCleaner.conv_db(db,options)
+end
 # doc_resp = db.get_doc_resp("6db4062ec9f2b589e20d2d2b8fd3676e")
 # puts CouchCleaner.conv(doc_resp.body)
 # puts db.get_bulk_doc_resp.body.inspect

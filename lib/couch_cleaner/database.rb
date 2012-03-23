@@ -22,14 +22,15 @@ module CouchCleaner
     end
     def get_bulk_doc_resp(doc_ids=[])
       req = Net::HTTP::Post.new(@uri.path+"/_all_docs?include_docs=true")
-      req.body = Yajl::Encoder.encode({"keys" => doc_ids})
       req['Content-Type'] = "application/json"
+      req.body = Yajl::Encoder.encode({"keys" => doc_ids})
       resp = @conn.request req
       resp.body.force_encoding(resp.type_params["charset"] || "utf-8")
       resp
     end
     def put_doc(doc_id,raw_doc)
       req = Net::HTTP::Put.new(@uri.path+"/#{doc_id}")
+      req["content-type"] = "application/json"
       req.body = raw_doc
       resp = @conn.request req
       resp.body.force_encoding(resp.type_params["charset"] || "utf-8")
