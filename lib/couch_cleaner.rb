@@ -38,9 +38,8 @@ module CouchCleaner
     # Let me take a look if it might have a weird question mark from failed translit
     binding.pry if cleaned_doc =~ /\?/ || options[:interactive]
 
-    if options[:verbose]
-      puts "Doc went from #{size[:before]} to #{size[:after]} for a difference of #{size[:after] - size[:before]}"
-    end
+    options[:logger].info "Doc went from #{size[:before]} to #{size[:after]} for a difference of #{size[:after] - size[:before]}"
+    
     cleaned_doc
   end
 
