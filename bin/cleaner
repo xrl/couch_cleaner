@@ -9,6 +9,7 @@ Bundler.require
 require 'optparse'
 require 'couch_cleaner'
 require 'iconv'
+require 'logger'
 
 Encoding.default_internal = Encoding::UTF_8
 
@@ -16,21 +17,43 @@ options = {
   :database => nil,
   :interactive => false,
   :doc_id => nil,
-  :verbose => false
+  :logger => Logger.new($stdout),
+  :pretend => false
 }
+
+options[:logger].level = Logger::ERROR
+
 parser = OptionParser.new do |opts|
   opts.version = CouchCleaner::VERSION
+  opts.banner = "\n\t\tA utility belt for fixing your couchdb\n\n"
+  opts.separator "Specify a database and a doc (optionally)"
   opts.on("-d DB","--database=DB","HTTP URI for your couch database") do |database|
     options[:database] = database
-  end
-  opts.on("-i","--interactive","Process database in an interactive mode") do
-    options[:interactive] = true
   end
   opts.on("-t TARGET","--target=TARGET","Only process document specified") do |doc_id|
     options[:doc_id] = doc_id
   end
-  opts.on("-v","--verbose","Turn on noisiness") do
-    options[:verbose] = true
+  opts.separator "Operation settings"
+  opts.on("-i","--interactive","Process database in an interactive mode") do
+    options[:interactive] = true
+  end
+  opts.on("-v LEVEL","--verbosity=LEVEL","Log level to [DEBUG,INFO,WARN,ERROR,FATAL,UNKNOWN]") do |level|
+    options[:logger].level = case level
+    when "DEBUG"   then Logger::DEBUG
+    when "INFO"    then Logger::INFO
+    when "WARN"    then Logger::WARN
+    when "ERROR"   then Logger::ERROR
+    when "FATAL"   then Logger::FATAL
+    when "UNKNOWN" then Logger::UNKNOWN
+    else raise ArgumentError, "Can not set level to #{level}"
+    end
+  end
+  opts.on("-p","--pretend","Do not modify database") do
+    options[:pretend] = true
+  end
+  opts.separator "Etc utilities"
+  opts.on("-f FILE","--file=FILE","Dump database to location") do |file_loc|
+    options[:file] = File.open(file_loc,'w')
   end
 end
 parser.parse!
@@ -41,6 +64,9 @@ raise ArgumentError, "Must provide document ID" if options[:mode] == :doc && opt
 db = CouchCleaner::Database.new(options[:database])
 if options[:doc_id]
   CouchCleaner.conv_doc(db,options[:doc_id],options)
+elsif options[:file]
+  db.dump_to(options[:file])
+  options[:file].close
 else
   CouchCleaner.conv_db(db,options)
 end

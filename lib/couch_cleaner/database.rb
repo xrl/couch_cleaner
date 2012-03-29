@@ -10,6 +10,13 @@ module CouchCleaner
       @uri  = URI.parse(db_uri_str)
       @conn = Net::HTTP.new(@uri.host,@uri.port)
     end
+    def dump_to(file_handle)
+      raw_docs_resp = get_bulk_doc_resp(all_doc_ids)
+      parsed_body = Yajl::Parser.parse(raw_docs_resp.body)
+      reencoded_docs = Yajl::Encoder.encode(parsed_body["rows"])
+      puts "Just retrieved #{parsed_body['rows'].size} docs"
+      file_handle.write(reencoded_docs)
+    end
     def all_doc_ids
       resp = get_doc_resp("_all_docs")
       Yajl::Parser.parse(resp.body)["rows"].collect{|x| x["id"]}      

@@ -14,8 +14,9 @@ require 'couch_cleaner/version'
 require 'pry'
 
 module CouchCleaner
-  # UNTRANSLITABLE_MAP = {"’" => "'", "µ" => '&micro;', '°' => '&deg;'}
-  UNTRANSLITABLE_MAP = {}
+  # Is there a _to_html_char function somewhere
+  UNTRANSLITABLE_MAP = {"’" => "'", "µ" => '&micro;', '°' => '&deg;'}
+  # UNTRANSLITABLE_MAP = {}
 
   # Take a raw HTTP application/json response body and clean it
   def self.conv(raw_doc,options)
@@ -35,7 +36,7 @@ module CouchCleaner
     size[:after] = cleaned_doc.size
 
     # Let me take a look if it might have a weird question mark from failed translit
-    # binding.pry if cleaned_doc =~ /\?/ || options[:interactive]
+    binding.pry if cleaned_doc =~ /\?/ || options[:interactive]
 
     if options[:verbose]
       puts "Doc went from #{size[:before]} to #{size[:after]} for a difference of #{size[:after] - size[:before]}"
@@ -61,7 +62,9 @@ module CouchCleaner
         binding.pry
       end
 
-      db.put_doc(id,fixed_doc_body)
+      if options[:pretend] == false
+        db.put_doc(id,fixed_doc_body)
+      end
     end
   end
 end
